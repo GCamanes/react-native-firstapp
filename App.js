@@ -7,8 +7,10 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, AppState} from 'react-native';
-import { NetInfo } from 'react-native'
+import {Platform, StyleSheet, Text, View } from 'react-native';
+import { AppState, NetInfo } from 'react-native'
+import { Image, TouchableHighlight, ScrollView, Share, TextInput } from 'react-native'
+import MyButton from './components/button'
 
 const workingOS = Platform.select({
   ios: 'iOS',
@@ -22,20 +24,25 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
-type Props = {};
-export default class App extends Component<Props> {
+const imgLinkSW = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1200px-Star_Wars_Logo.svg.png"
+const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+export default class App extends Component {
 
   constructor(props) {
     super(props);
 
     this.state = {
       appState: AppState.currentState,
-      isConnected: true
+      isConnected: true,
+      email: "",
+      emailAlertShow: true
     }
     this._handleAppStateChange = this._handleAppStateChange.bind(this);
     this._handleConnectivityChange = this._handleConnectivityChange.bind(this);
+    this._handlEmailInput = this._handlEmailInput.bind(this);
   }
-  
+
   componentDidMount() {
     AppState.addEventListener('change', this._handleAppStateChange);
     NetInfo.isConnected.addEventListener('connectionChange', this._handleConnectivityChange);
@@ -55,19 +62,84 @@ export default class App extends Component<Props> {
 
   _handleConnectivityChange = isConnected => {
     this.setState({ isConnected: isConnected });
-    console.log(this.state.isConnected);
+  }
+
+  _onImgPress(message) {
+    Share.share({message: message, title: "test share", url: imgLinkSW});
+  }
+
+  _handlEmailInput(text) {
+    this.setState({
+      email: text,
+      emailAlertShow: !EMAIL_REGEX.test(text)
+    });
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
         <Text style={styles.instructions}>{instructions}</Text>
-        <Text>Current state is: {this.state.appState}</Text>
         <Text>Current OS is: {workingOS}</Text>
         <Text>Connectivity: {(this.state.isConnected) ? ("connected") : ("not connected")}</Text>
+
+        <MyButton />
+
+        <TextInput keyboardType="email-address"
+          style={{height: 40}}
+          placeholder="Type here to translate!"
+          onChangeText={(text) => this._handlEmailInput(text)}
+        />
+
+        {
+          (this.state.emailAlertShow) ? (
+            <View style={{backgroundColor: 'red'}} hide={this.state.emailAlertHide}>
+              <Text style={{color: 'white'}}>email not valid !</Text>
+            </View>
+          ) : (
+            null
+          )
+        }
+
+        <ScrollView>
+          <TouchableHighlight onPress={() => this._onImgPress("image boba fett")}>
+            <Image
+              style={{width: 100, height: 100}}
+              source={require('./assets/bobafett.jpg')}
+            />
+          </TouchableHighlight>
+          <TouchableHighlight onPress={() => this._onImgPress("image star wars")}>
+            <Image
+              style={{width: 170, height: 100}}
+              source={{uri:imgLinkSW }}
+            />
+          </TouchableHighlight>
+          <TouchableHighlight onPress={() => this._onImgPress("image boba fett")}>
+            <Image
+              style={{width: 100, height: 100}}
+              source={require('./assets/bobafett.jpg')}
+            />
+          </TouchableHighlight>
+          <TouchableHighlight onPress={() => this._onImgPress("image star wars")}>
+            <Image
+              style={{width: 170, height: 100}}
+              source={{uri:imgLinkSW }}
+            />
+          </TouchableHighlight>
+          <TouchableHighlight onPress={() => this._onImgPress("image boba fett")}>
+            <Image
+              style={{width: 100, height: 100}}
+              source={require('./assets/bobafett.jpg')}
+            />
+          </TouchableHighlight>
+          <TouchableHighlight onPress={() => this._onImgPress("image star wars")}>
+            <Image
+              style={{width: 170, height: 100}}
+              source={{uri:imgLinkSW }}
+            />
+          </TouchableHighlight>
+        </ScrollView>
       </View>
+      
     );
   }
 }
